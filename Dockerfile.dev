@@ -1,0 +1,146 @@
+FROM php:8.2-fpm-alpine
+
+# Set environment variables for development
+ENV COMPOSER_ALLOW_SUPERUSER=1 \
+    PHP_OPCACHE_VALIDATE_TIMESTAMPS="1" \
+    XDEBUG_MODE=coverage
+
+# Install system dependencies and PHP extensions
+RUN apk add --no-cache \
+    # System dependencies
+    bash \
+    git \
+    unzip \
+    curl \
+    wget \
+    zip \
+    icu-libs \
+    libzip \
+    libpng \
+    libjpeg-turbo \
+    freetype \
+    mysql-client \
+    nano \
+    vim \
+    # Build dependencies
+    $PHPIZE_DEPS \
+    icu-dev \
+    libzip-dev \
+    libpng-dev \
+    libjpeg-turbo-dev \
+    freetype-dev \
+    oniguruma-dev \
+    autoconf \
+    g++ \
+    make \
+    linux-headers
+
+# Configure and install PHP extensions
+RUN docker-php-ext-configure gd \
+    --with-freetype \
+    --with-jpeg \
+    && docker-php-ext-install -j$(nproc) \
+    pdo \
+    pdo_mysql \
+    mysqli \
+    intl \
+    zip \
+    opcache \
+    gd \
+    bcmath \
+    exif \
+    pcntl \
+    sockets
+
+# Install APCu (for caching)
+RUN pecl install apcu \
+    && docker-php-ext-enable apcu
+
+# Install Xdebug for development
+RUN pecl install xdebug \
+    && docker-php-ext-enable xdebug
+
+# Install Composer
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+
+# Install Symfony CLI
+RUN wget https://get.symfony.com/cli/installer -O - | bash \
+    && mv /root/.symfony*/bin/symfony /usr/local/bin/symfony
+
+# Configure PHP for development
+RUN echo "date.timezone=UTC" > /usr/local/etc/php/conf.d/date_timezone.ini \
+    && echo "memory_limit=512M" > /usr/local/etc/php/conf.d/memory_limit.ini \
+    && echo "upload_max_filesize=50M" > /usr/local/etc/php/conf.d/upload_max_filesize.ini \
+    && echo "post_max_size=50M" > /usr/local/etc/php/conf.d/post_max_size.ini \
+    && echo "max_execution_time=600" > /usr/local/etc/php/conf.d/max_execution_time.ini \
+    && echo "display_errors=On" > /usr/local/etc/php/conf.d/display_errors.ini \
+    && echo "display_startup_errors=On" > /usr/local/etc/php/conf.d/display_startup_errors.ini \
+    && echo "error_reporting=E_ALL" > /usr/local/etc/php/conf.d/error_reporting.ini
+
+# Configure OPcache for development (with validation enabled)
+RUN { \
+    echo 'opcache.enable=1'; \
+    echo 'opcache.memory_consumption=256'; \
+    echo 'opcache.interned_strings_buffer=16'; \
+    echo 'opcache.max_accelerated_files=20000'; \
+    echo 'opcache.validate_timestamps=1'; \
+    echo 'opcache.revalidate_freq=0'; \
+    echo 'opcache.save_comments=1'; \
+    echo 'opcache.enable_cli=1'; \
+    } > /usr/local/etc/php/conf.d/opcache.ini
+
+# Configure APCu
+RUN { \
+    echo 'apc.enabled=1'; \
+    echo 'apc.shm_size=64M'; \
+    echo 'apc.ttl=7200'; \
+    echo 'apc.enable_cli=1'; \
+    } > /usr/local/etc/php/conf.d/apcu.ini
+
+# Configure Xdebug
+RUN { \
+    echo 'xdebug.mode=develop,debug,coverage'; \
+    echo 'xdebug.start_with_request=trigger'; \
+    echo 'xdebug.client_host=host.docker.internal'; \
+    echo 'xdebug.client_port=9003'; \
+    echo 'xdebug.log_level=0'; \
+    } > /usr/local/etc/php/conf.d/xdebug.ini
+
+# Configure PHP-FPM
+RUN { \
+    echo '[global]'; \
+    echo 'error_log = /proc/self/fd/2'; \
+    echo 'log_level = notice'; \
+    echo '[www]'; \
+    echo 'access.log = /proc/self/fd/2'; \
+    echo 'clear_env = no'; \
+    echo 'catch_workers_output = yes'; \
+    echo 'decorate_workers_output = no'; \
+    echo 'listen = 9000'; \
+    echo 'pm = dynamic'; \
+    echo 'pm.max_children = 30'; \
+    echo 'pm.start_servers = 5'; \
+    echo 'pm.min_spare_servers = 3'; \
+    echo 'pm.max_spare_servers = 10'; \
+    echo 'pm.process_idle_timeout = 10s'; \
+    echo 'pm.max_requests = 500'; \
+    } > /usr/local/etc/php-fpm.d/zz-docker.conf
+
+# Set working directory
+WORKDIR /var/www/html
+
+# Install Composer dependencies (will be overridden by volume mount in dev)
+# This is just to have a base image with dependencies cached
+COPY composer.json composer.lock symfony.lock* ./
+RUN composer install --prefer-dist --no-scripts --no-progress --no-interaction || true
+
+# Set permissions
+RUN mkdir -p var/cache var/log \
+    && chown -R www-data:www-data var \
+    && chmod -R 777 var
+
+# Expose PHP-FPM port
+EXPOSE 9000
+
+# Start PHP-FPM in foreground mode (required for Docker)
+CMD ["php-fpm", "-F"]
