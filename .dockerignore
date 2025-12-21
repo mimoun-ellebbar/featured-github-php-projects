@@ -1,0 +1,117 @@
+# Git files
+.git
+.gitignore
+.gitattributes
+.github
+
+# Docker files (exclude config but keep docker/ folder with nginx configs)
+.docker
+Dockerfile*
+docker-compose*.yml
+compose*.yaml
+.dockerignore
+!docker/
+
+# Development tools
+.idea
+.vscode
+.editorconfig
+.phpstorm.meta.php
+
+# Dependencies - will be installed in container
+/vendor/
+/node_modules/
+
+# Cache and logs - will be generated in container
+/var/cache/*
+!/var/cache/.gitkeep
+/var/log/*
+!/var/log/.gitkeep
+/var/sessions/*
+!/var/sessions/.gitkeep
+
+# Environment files
+.env.local
+.env.local.php
+.env.*.local
+.env.test
+.env.dev
+
+# Tests
+/tests/
+/phpunit.xml
+/phpunit.dist.xml
+/.phpunit.cache
+/.phpunit.result.cache
+
+# Documentation
+README.md
+CHANGELOG.md
+LICENSE
+*.md
+/docs/
+
+# CI/CD
+.gitlab-ci.yml
+.travis.yml
+/.github/
+/bitbucket-pipelines.yml
+/azure-pipelines.yml
+/jenkinsfile
+
+# Build artifacts
+/build/
+/dist/
+/.build/
+
+# OS files
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+._*
+
+# IDE files
+*.sublime-project
+*.sublime-workspace
+nbproject/
+.project
+.buildpath
+.settings/
+
+# Temporary files
+/tmp/
+/temp/
+*.tmp
+*.temp
+*.bak
+*.old
+*.cache
+
+# Symfony specific
+/public/bundles/
+/public/uploads/
+/.web-server-pid
+/symfony.lock
+
+# Asset files (if using asset compilation)
+/public/build/
+/assets/vendor/
+
+# Deployment
+/deploy.php
+/deployer/
+/.deployer/
+
+# Database
+*.sql
+*.sqlite
+*.db
+
+# Webpack/Encore (if used)
+/webpack.config.js
+/package.json
+/package-lock.json
+/yarn.lock
+/pnpm-lock.yaml
