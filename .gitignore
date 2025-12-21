@@ -28,3 +28,6 @@ phpstan.neon
 /.php-cs-fixer.php
 /.php-cs-fixer.cache
 ###< friendsofphp/php-cs-fixer ###
+###> PHPSTORM ###
+/.idea/
+###< PHPSTORM ###
