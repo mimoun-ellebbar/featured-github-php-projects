@@ -151,5 +151,5 @@ EXPOSE 9000
 # Switch to www-data user
 USER www-data
 
-# Start PHP-FPM
-CMD ["php-fpm"]
+# Start PHP-FPM in foreground mode (required for Docker)
+CMD ["php-fpm", "-F"]

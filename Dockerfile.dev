@@ -142,5 +142,5 @@ RUN mkdir -p var/cache var/log \
 # Expose PHP-FPM port
 EXPOSE 9000
 
-# Start PHP-FPM
-CMD ["php-fpm"]
+# Start PHP-FPM in foreground mode (required for Docker)
+CMD ["php-fpm", "-F"]
