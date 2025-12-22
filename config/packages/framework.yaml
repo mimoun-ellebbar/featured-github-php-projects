@@ -12,11 +12,12 @@ framework:
                 retry_failed:
                     enabled: true
                     max_retries: 4
-                    delay: 200
+                    delay: 2000
                     # retry_strategy: app.custom_strategy
                     http_codes:
                         0: [ 'GET', 'HEAD' ]   # retry network errors if request method is GET or HEAD
                         429: true # retry all responses with 429 status code
+                        403: true
                         500: [ 'GET', 'HEAD' ]
                     multiplier: 3
                     max_delay: 5000

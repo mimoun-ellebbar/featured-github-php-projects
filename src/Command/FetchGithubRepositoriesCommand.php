@@ -3,6 +3,7 @@
 namespace App\Command;
 
 use App\Contracts\GithubAPIServiceInterface;
+use App\DataTransferObjects\RepositorySearchParamsDTO;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -43,8 +44,17 @@ class FetchGithubRepositoriesCommand extends Command
         //        if ($input->getOption('option1')) {
         //            // ...
         //        }
-        $data = $this->githubAPIService->fetchRepository('danielmiessler', 'SecLists');
-        dump($data);
+       // $data = $this->githubAPIService->fetchRepository('danielmiessler', 'SecLists');
+        $queryParam = RepositorySearchParamsDTO::fromArray(
+            [
+                'language' => 'PHP',
+                'sort' => 'stars',
+            ]
+        );
+        foreach ( $this->githubAPIService->fetchAllRepositories($queryParam) as $repository) {
+            $io->writeln($repository->data['full_name']. ", ". $repository->data['stargazers_count']);
+        }
+
 
         $io->success('You have a new command! Now make it your own! Pass --help to see your options.');
 
