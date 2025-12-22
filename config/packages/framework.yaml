@@ -5,6 +5,27 @@ framework:
     # Note that the session will be started ONLY if you read or write from it.
     session: true
 
+    http_client:
+        scoped_clients:
+            github.client:
+                base_uri: '%env(string:GITHUB_API_BASE_URL)%'
+                retry_failed:
+                    enabled: true
+                    max_retries: 4
+                    delay: 200
+                    # retry_strategy: app.custom_strategy
+                    http_codes:
+                        0: [ 'GET', 'HEAD' ]   # retry network errors if request method is GET or HEAD
+                        429: true # retry all responses with 429 status code
+                        500: [ 'GET', 'HEAD' ]
+                    multiplier: 3
+                    max_delay: 5000
+                    jitter: 0.3
+                timeout: 60
+                headers:
+                    Accept: 'application/vnd.github+json'
+                    User-Agent: 'YourApp/1.0'
+                    X-GitHub-Api-Version: '%env(string:GITHUB_API_VERSION)%'
     #esi: true
     #fragments: true
 
