@@ -6,7 +6,6 @@ use App\Config\GithubConfig;
 use App\Contracts\GithubAPIServiceInterface;
 use App\DataTransferObjects\RepositoryItemDTO;
 use App\DataTransferObjects\RepositorySearchParamsDTO;
-use App\Enums\GithubEndpointConfigEnum;
 use App\Exceptions\GitHubConfigException;
 use Iterator;
 use Psr\Log\LoggerInterface;
@@ -14,27 +13,25 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Throwable;
 
-class GithubRestAPIService implements GithubAPIServiceInterface
+readonly class GithubRestAPIService implements GithubAPIServiceInterface
 {
     public function __construct(
-        private readonly GithubConfig $config,
-        private readonly LoggerInterface $logger,
+        private GithubConfig $config,
+        private LoggerInterface $logger,
         #[Autowire(service: 'github.client')]
-        public readonly HttpClientInterface $httpClient,
+        public HttpClientInterface $httpClient,
     ) {}
 
     /**
      * @throws Throwable
      */
-    private function call(string $endpointName, string $method, array $params = [], array $query = []): array
+    private function call(string $urlOrPath, string $method = 'GET', array $query = []): array
     {
-        $apiUrl =  '/' . ltrim($endpointName, '/');
-        if ($params) {
-            $apiUrl = vsprintf($apiUrl, $params);
-        }
+
+
         try {
             return $this->httpClient
-                ->request($method, $apiUrl, [
+                ->request($method, $urlOrPath, [
                     'query' => $query,
                     'headers' => $this->authHeader(),
                 ])
@@ -42,10 +39,9 @@ class GithubRestAPIService implements GithubAPIServiceInterface
         } catch (Throwable $e) {
             $this->logger->error('Http Error:' . $e->getMessage(), [
                 'exception' => $e->getTraceAsString(),
-                'api_url' => $apiUrl,
-                'method' => $method,
-                'params' => $params,
+                'api_url' => $urlOrPath,
                 'query' => $query,
+                'auth_headers' => $this->authHeader(),
             ]);
             throw $e;
         }
@@ -60,14 +56,20 @@ class GithubRestAPIService implements GithubAPIServiceInterface
     public function fetchAllRepositories(RepositorySearchParamsDTO $builder): Iterator
     {
 
-        $endpoint = null;
         try {
-            $endpoint = $this->resolveAPIEndpoint(GithubEndpointConfigEnum::FETCH_REPOSITORIES);
+            $endpoint = $this->config->searchEndpoint;
+            if (!$endpoint) {
+                throw new GitHubConfigException(
+                    param: 'searchEndpoint',
+                    message: 'search endpoint config not found or invalid',
+                );
+            }
+            $endpoint = '/' . ltrim($endpoint, '/');
             $data = $this->call(
-                endpointName: $endpoint['path'],
-                method: $endpoint['method'],
+                urlOrPath: $endpoint,
                 query: $builder->buildQuery(),
             );
+
             if ($data && isset($data['total_count']) && $data['total_count']) {
                 foreach ($data['items'] as $item) {
                     yield RepositoryItemDTO::fromResponse($item);
@@ -85,30 +87,6 @@ class GithubRestAPIService implements GithubAPIServiceInterface
         return null;
     }
 
-    public function fetchRepository(string $owner, string $repositoryName): ?RepositoryItemDTO
-    {
-        $endpoint = null;
-
-        try {
-            $endpoint = $this->resolveAPIEndpoint(GithubEndpointConfigEnum::GET_REPOSITORY);
-            $data = $this->call(
-                endpointName: $endpoint['path'],
-                method: $endpoint['method'],
-                params: [$owner, $repositoryName],
-            );
-            return RepositoryItemDTO::fromResponse($data);
-
-        } catch (Throwable $e) {
-            $this->logger->error('API Service Error: ' . $e->getMessage(), [
-                'exception' => $e->getTraceAsString(),
-                'endpoint' => $endpoint,
-                'repository' => $repositoryName,
-
-            ]);
-        }
-
-        return null;
-    }
 
     private function authHeader(): array
     {
@@ -120,22 +98,7 @@ class GithubRestAPIService implements GithubAPIServiceInterface
         return [];
     }
 
-    /**
-     * @throws GitHubConfigException
-     */
-    private function resolveAPIEndpoint(GithubEndpointConfigEnum $endpointName): array
-    {
-        $endpoint = $this->config->endpoints[$endpointName->value] ?? null;
-        if (!$endpoint
-            || !isset($endpoint['path'])
-            || !isset($endpoint['method'])) {
-            throw new GitHubConfigException(
-                param: $endpointName->value,
-                message: 'endpoint not found or invalid',
-            );
-        }
-        return $endpoint;
-    }
+
 
 
 }

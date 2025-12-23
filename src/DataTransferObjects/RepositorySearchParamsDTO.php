@@ -45,7 +45,7 @@ class RepositorySearchParamsDTO
             $parts[] = $this->q;
         }
         if ($this->language) {
-            $parts[] = 'language:' . $this->escapeQualifier($this->language);
+            $parts[] = 'language:' . $this->language;
         }
         // you can add more parts/filters over here
         // --
@@ -61,11 +61,5 @@ class RepositorySearchParamsDTO
         }
 
         return $query;
-    }
-
-    private function escapeQualifier(string $value): string
-    {
-        $value = trim($value);
-        return str_contains($value, ' ') ? '"' . str_replace('"', '\"', $value) . '"' : $value;
     }
 }

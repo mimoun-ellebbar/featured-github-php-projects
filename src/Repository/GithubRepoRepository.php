@@ -7,13 +7,13 @@ use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
- * @extends ServiceEntityRepository<ProjectRepository>
+ * @extends ServiceEntityRepository<GithubRepoRepository>
  */
-class ProjectRepository extends ServiceEntityRepository
+class GithubRepoRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
-        parent::__construct($registry, ProjectRepository::class);
+        parent::__construct($registry, GithubRepository::class);
     }
 
 //    /**

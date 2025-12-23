@@ -17,6 +17,6 @@ final class GithubConfig
 {
     public function __construct(
         public readonly string $token,
-        public array $endpoints,
+        public string $searchEndpoint,
     ) {}
 }
