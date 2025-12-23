@@ -2,7 +2,5 @@ parameters:
     github_api.base_url: '%env(string:GITHUB_API_BASE_URL)%'
     github.http.retry_enabled: '%env(default:true:bool:GITHUB_API_HTTP_RETRY_ENABLED)%'
     github.http.max_retries: '%env(default:3:int:GITHUB_API_HTTP_MAX_RETRIES)%'
-    github_api.endpoints:
-        search_repos: { method: 'GET', path: '%env(string:GITHUB_API_SEARCH_REPOS_ENDPOINT)%' }
-        repo_get: { method: 'GET', path: '%env(string:GITHUB_API_REPO_ENDPOINT)%' }
+    github_api.search_repos: '%env(string:GITHUB_API_SEARCH_REPOS_ENDPOINT)%'
     github_api.token: '%env(string:GITHUB_API_TOKEN)%'

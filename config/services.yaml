@@ -21,6 +21,6 @@ services:
     App\Config\GithubConfig:
         arguments:
             $token: '%github_api.token%'
-            $endpoints: '%github_api.endpoints%'
+            $searchEndpoint: '%github_api.search_repos%'
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
