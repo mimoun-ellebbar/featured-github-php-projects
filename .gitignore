@@ -30,4 +30,5 @@ phpstan.neon
 ###< friendsofphp/php-cs-fixer ###
 ###> PHPSTORM ###
 /.idea/
+/.claude/
 ###< PHPSTORM ###
