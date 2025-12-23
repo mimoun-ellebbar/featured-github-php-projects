@@ -1,68 +1,17 @@
 <!DOCTYPE html>
-<html lang="en" class="h-full bg-gray-100">
+<html>
     <head>
         <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>{% block title %}Admin Dashboard{% endblock %}</title>
+        <title>{% block title %}Welcome!{% endblock %}</title>
         <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 128 128%22><text y=%221.2em%22 font-size=%2296%22>⚫️</text><text y=%221.3em%22 x=%220.2em%22 font-size=%2276%22 fill=%22%23fff%22>sf</text></svg>">
         {% block stylesheets %}
-            <link rel="stylesheet" href="{{ asset('styles/app.css') }}">
         {% endblock %}
 
         {% block javascripts %}
             {% block importmap %}{{ importmap('app') }}{% endblock %}
         {% endblock %}
     </head>
-    <body class="h-full">
-        <div class="min-h-full">
-            <!-- Navbar -->
-            <nav class="bg-gray-800">
-                <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-                    <div class="flex h-16 items-center justify-between">
-                        <div class="flex items-center">
-                            <div class="flex-shrink-0">
-                                <span class="text-white text-xl font-bold">Admin Panel</span>
-                            </div>
-                            <div class="hidden md:block">
-                                <div class="ml-10 flex items-baseline space-x-4">
-                                    <a href="{{ path('app_home') }}" class="{% if app.request.get('_route') == 'app_home' %}bg-gray-900 text-white{% else %}text-gray-300 hover:bg-gray-700 hover:text-white{% endif %} rounded-md px-3 py-2 text-sm font-medium">Home</a>
-                                    <a href="{{ path('app_github_repository') }}" class="{% if app.request.get('_route') == 'app_github_repository' %}bg-gray-900 text-white{% else %}text-gray-300 hover:bg-gray-700 hover:text-white{% endif %} rounded-md px-3 py-2 text-sm font-medium">Code Challenge</a>
-                                </div>
-                            </div>
-                        </div>
-                        <!-- Mobile menu button -->
-                        <div class="md:hidden">
-                            <button type="button" id="mobile-menu-button" class="inline-flex items-center justify-center rounded-md bg-gray-800 p-2 text-gray-400 hover:bg-gray-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800">
-                                <span class="sr-only">Open main menu</span>
-                                <svg class="block h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
-                                </svg>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Mobile menu -->
-                <div class="md:hidden hidden" id="mobile-menu">
-                    <div class="space-y-1 px-2 pb-3 pt-2 sm:px-3">
-                        <a href="{{ path('app_home') }}" class="{% if app.request.get('_route') == 'app_home' %}bg-gray-900 text-white{% else %}text-gray-300 hover:bg-gray-700 hover:text-white{% endif %} block rounded-md px-3 py-2 text-base font-medium">Home</a>
-                        <a href="{{ path('app_github_repository') }}" class="{% if app.request.get('_route') == 'app_github_repository' %}bg-gray-900 text-white{% else %}text-gray-300 hover:bg-gray-700 hover:text-white{% endif %} block rounded-md px-3 py-2 text-base font-medium">Code Challenge</a>
-                    </div>
-                </div>
-            </nav>
-
-            <!-- Page content -->
-            <main>
-                {% block body %}{% endblock %}
-            </main>
-        </div>
-
-        <!-- Mobile menu toggle script -->
-        <script>
-            document.getElementById('mobile-menu-button')?.addEventListener('click', function() {
-                const menu = document.getElementById('mobile-menu');
-                menu.classList.toggle('hidden');
-            });
-        </script>
+    <body>
+        {% block body %}{% endblock %}
     </body>
 </html>
