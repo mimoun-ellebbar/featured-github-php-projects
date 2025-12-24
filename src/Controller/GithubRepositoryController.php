@@ -32,12 +32,14 @@ final class GithubRepositoryController extends AbstractController
     }
 
     #[Route('/github/refresh', name: 'app_github_repository_refresh', methods: ['POST'])]
-    public function refresh(RefreshGithubRepositoriesAction $action): JsonResponse
+    public function refresh(RefreshGithubRepositoriesAction $action): Response
     {
         $response = $action->execute();
-        return $this->json(
-            data: $response->toArray(),
-            status: $response->ok ? Response::HTTP_OK : Response::HTTP_INTERNAL_SERVER_ERROR
+        $this->addFlash(
+            type: $response->ok ? 'success' : 'error',
+            message: $response->message
         );
+        return $this->redirectToRoute('app_github_repository', [], Response::HTTP_SEE_OTHER); // 303
+
     }
 }
