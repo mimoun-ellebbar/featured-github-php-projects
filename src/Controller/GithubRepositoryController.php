@@ -2,9 +2,10 @@
 
 namespace App\Controller;
 
-use App\Actions\GetGithubRepositoryAction;
 use App\Actions\PaginateGithubRepositoriesAction;
 use App\Actions\RefreshGithubRepositoriesAction;
+use App\DataTransferObjects\RepositoryItemDTO;
+use App\Entity\GithubRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -20,12 +21,12 @@ final class GithubRepositoryController extends AbstractController
         return $this->render('github_repository/index.html.twig', $data);
     }
 
-    #[Route('/github/repository/{repo_id}', name: 'app_github_repository_show')]
-    public function show(int $repo_id, GetGithubRepositoryAction $action): JsonResponse
+    #[Route('/github/repository/{id}', name: 'app_github_repository_show')]
+    public function show(?GithubRepository $repository): JsonResponse
     {
-        $repoDto = $action->execute($repo_id);
+        $repoDto = $repository ? RepositoryItemDTO::fromObject($repository) : null;
         return $this->json(
-            data: $repoDto?->toArray(),
+            data: $repoDto?->toArray(true),
             status: $repoDto ? Response::HTTP_OK : Response::HTTP_NOT_FOUND
         );
     }

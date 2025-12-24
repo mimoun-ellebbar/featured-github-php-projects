@@ -7,4 +7,5 @@ import './stimulus_bootstrap.js';
  */
 import './styles/app.css';
 
-console.log('This log comes from assets/app.js - welcome to AssetMapper! 🎉');
+// Note: RepoModalView is imported directly in the template where it's used
+// See: templates/github_repository/index.html.twig
