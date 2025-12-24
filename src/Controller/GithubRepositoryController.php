@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Actions\GetGithubRepositoryAction;
 use App\Actions\PaginateGithubRepositoriesAction;
+use App\Actions\RefreshGithubRepositoriesAction;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -26,6 +27,16 @@ final class GithubRepositoryController extends AbstractController
         return $this->json(
             data: $repoDto?->toArray(),
             status: $repoDto ? Response::HTTP_OK : Response::HTTP_NOT_FOUND
+        );
+    }
+
+    #[Route('/github/refresh', name: 'app_github_repository_refresh', methods: ['POST'])]
+    public function refresh(RefreshGithubRepositoriesAction $action): JsonResponse
+    {
+        $response = $action->execute();
+        return $this->json(
+            data: $response->toArray(),
+            status: $response->ok ? Response::HTTP_OK : Response::HTTP_INTERNAL_SERVER_ERROR
         );
     }
 }
