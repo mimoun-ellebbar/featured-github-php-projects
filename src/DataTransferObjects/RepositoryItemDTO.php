@@ -4,6 +4,7 @@ namespace App\DataTransferObjects;
 
 use App\Entity\GithubRepository;
 use DateTimeImmutable;
+use DateTimeInterface;
 use DateTimeZone;
 
 class RepositoryItemDTO
@@ -33,14 +34,26 @@ class RepositoryItemDTO
         );
     }
 
-    public function toArray(): array
+    public function toArray(bool $extended_detail = false): array
     {
-        return [
+        $default = [
             'id' => $this->repo_id,
             'name' => $this->name,
             'url' => $this->url,
         ];
+        if ($extended_detail) {
+            $default = array_merge($default, [
+                'description' => $this->description,
+                'stars_count' => $this->stars_count,
+                'last_pushed_at' => $this->pushed_at?->format(DateTimeInterface::ATOM),
+                'updated_at' => $this->updated_at?->format(DateTimeInterface::ATOM),
+                'created_at' => $this->created_at->format(DateTimeInterface::ATOM),
+                'url' => $this->url,
+            ]);
+        }
+        return $default;
     }
+
     /**
      * @throws \Exception
      */
