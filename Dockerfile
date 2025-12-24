@@ -9,7 +9,6 @@ ENV COMPOSER_ALLOW_SUPERUSER=1 \
 
 # Install system dependencies and PHP extensions
 RUN apk add --no-cache \
-    # System dependencies
     bash \
     git \
     unzip \
@@ -22,7 +21,6 @@ RUN apk add --no-cache \
     libjpeg-turbo \
     freetype \
     mysql-client \
-    # Build dependencies (will be removed later)
     $PHPIZE_DEPS \
     icu-dev \
     libzip-dev \
@@ -130,6 +128,10 @@ COPY . .
 
 # Copy environment file if it doesn't exist
 RUN if [ ! -f .env.local ]; then cp .env .env.local; fi
+
+# Build Tailwind CSS and compile assets
+RUN php bin/console tailwind:build --minify \
+    && php bin/console asset-map:compile
 
 # Set permissions
 RUN chown -R www-data:www-data /var/www/html \

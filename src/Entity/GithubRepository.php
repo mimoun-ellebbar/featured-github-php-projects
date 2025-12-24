@@ -6,7 +6,10 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity]
-#[ORM\Table(name: 'github_repositories')]
+#[ORM\Table(
+    name: 'github_repositories',
+)]
+#[ORM\Index(name: 'idx_repo_stars_id', columns: ['stars_count','id'])]
 #[ORM\HasLifecycleCallbacks]
 class GithubRepository
 {
