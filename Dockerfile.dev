@@ -137,6 +137,9 @@ RUN composer install --prefer-dist --no-scripts --no-progress --no-interaction |
 # Copy application files for asset building
 COPY . .
 
+# Asset map init
+RUN php php bin/console importmap:install || true
+
 # Build Tailwind CSS and compile assets
 RUN php bin/console tailwind:build --minify || true \
     && php bin/console asset-map:compile || true
