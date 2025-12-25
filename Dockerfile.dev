@@ -134,18 +134,8 @@ WORKDIR /var/www/html
 COPY composer.json composer.lock symfony.lock* ./
 RUN composer install --prefer-dist --no-scripts --no-progress --no-interaction || true
 
-# Copy application files for asset building
-COPY . .
-
-# Asset map init
-RUN php bin/console importmap:install || true
-
-# Build Tailwind CSS and compile assets
-RUN php bin/console tailwind:build --minify || true \
-    && php bin/console asset-map:compile || true
-
-# Set permissions
-RUN mkdir -p var/cache var/log \
+# Set permissions (create directories that will be needed)
+RUN mkdir -p var/cache var/log var/tailwind \
     && chown -R www-data:www-data var \
     && chmod -R 777 var
 

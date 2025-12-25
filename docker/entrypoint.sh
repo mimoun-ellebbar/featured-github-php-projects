@@ -3,6 +3,16 @@ set -e
 
 echo "=== Symfony Entrypoint Script ==="
 
+# Build assets (must run before DB checks as it doesn't need DB)
+echo "Installing importmap packages..."
+php bin/console importmap:install || true
+
+echo "Building Tailwind CSS..."
+php bin/console tailwind:build --minify || true
+
+echo "Compiling asset map..."
+php bin/console asset-map:compile || true
+
 # Wait for database to be ready
 echo "Waiting for database to be ready..."
 until php bin/console doctrine:query:sql "SELECT 1" > /dev/null 2>&1; do
@@ -20,7 +30,7 @@ php bin/console doctrine:database:create --if-not-exists --no-interaction
 echo "Running database migrations..."
 php bin/console doctrine:migrations:migrate --no-interaction --allow-no-migration
 
-echo "=== Database initialization completed ==="
+echo "=== Initialization completed ==="
 
 # Execute the CMD from Dockerfile (php-fpm -F)
 exec "$@"
