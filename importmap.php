@@ -25,4 +25,7 @@ return [
     '@hotwired/turbo' => [
         'version' => '7.3.0',
     ],
+    'repository/modal_view' => [
+        'path' => './assets/repository/modal_view.js',
+    ],
 ];

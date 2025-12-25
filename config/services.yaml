@@ -18,6 +18,11 @@ services:
     # this creates a service per class whose id is the fully-qualified class name
     App\:
         resource: '../src/'
-
+    App\Config\GithubAPIConfig:
+        arguments:
+            $token: '%github_api.token%'
+            $searchEndpoint: '%github_api.search_repos%'
+            $apiMaxResultCount: '%github_api.search.max_result_count%'
+            $apiMaxPerPageCount: '%github_api.search.max_per_page_count%'
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
