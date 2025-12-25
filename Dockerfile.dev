@@ -134,28 +134,20 @@ WORKDIR /var/www/html
 COPY composer.json composer.lock symfony.lock* ./
 RUN composer install --prefer-dist --no-scripts --no-progress --no-interaction || true
 
-# Copy application files for asset building
-COPY . .
-
-# Asset map init
-RUN php php bin/console importmap:install || true
-
-# Build Tailwind CSS and compile assets
-RUN php bin/console tailwind:build --minify || true \
-    && php bin/console asset-map:compile || true
-
-# Set permissions
-RUN mkdir -p var/cache var/log \
+# Set permissions (create directories that will be needed)
+RUN mkdir -p var/cache var/log var/tailwind \
     && chown -R www-data:www-data var \
     && chmod -R 777 var
 
+# Copy entrypoint script
+COPY docker/entrypoint.sh /usr/local/bin/entrypoint.sh
+RUN chmod +x /usr/local/bin/entrypoint.sh
 
-# init database
-RUN php bin/console doctrine:database:create --if-not-exists --no-interaction \
-    && php bin/console doctrine:migrations:migrate --no-interaction || true
-    
 # Expose PHP-FPM port
 EXPOSE 9000
+
+# Use entrypoint for database initialization
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
 
 # Start PHP-FPM in foreground mode (required for Docker)
 CMD ["php-fpm", "-F"]
