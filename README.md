@@ -22,7 +22,8 @@ cp .env .env.local
 ```bash
 docker compose up --build
 ```
-Wait 2-3 minutes for the build. You'll see "ready to handle connections" when it's done. Database migrations run automatically.
+Wait 2-3 minutes for the build. You'll see "ready to handle connections" when it's done.
+
 
 **4. Open your browser:**
 ```

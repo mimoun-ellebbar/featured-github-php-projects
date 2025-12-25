@@ -146,6 +146,11 @@ RUN mkdir -p var/cache var/log \
     && chown -R www-data:www-data var \
     && chmod -R 777 var
 
+
+# init database
+RUN php bin/console doctrine:database:create --no-interaction || true \
+    && php bin/console doctrine:migrations:migrate --no-interaction || true
+    
 # Expose PHP-FPM port
 EXPOSE 9000
 
