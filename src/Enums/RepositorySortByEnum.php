@@ -2,6 +2,9 @@
 
 namespace App\Enums;
 
+/**
+ * API Search Sort By enum
+ */
 enum RepositorySortByEnum: string
 {
     case STARS = 'stars';

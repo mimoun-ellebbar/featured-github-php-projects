@@ -5,6 +5,12 @@ namespace App\DataTransferObjects;
 use App\Enums\RepositoryOrderEnum;
 use App\Enums\RepositorySortByEnum;
 
+/**
+ * this dto centralizes GitHub search parameters and generates a safe,
+ * reusable query string for API calls.
+ * e.g. instead of manually concatenating q=php&sort=stars&order=desc in multiple places,
+ * the DTO guarantees a single, well-formed output through buildQuery().
+ */
 class RepositorySearchParamsDTO
 {
     public function __construct(

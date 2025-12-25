@@ -7,63 +7,72 @@ use App\Repository\GithubRepoRepository;
 use Doctrine\Common\Collections\Criteria;
 use Psr\Cache\CacheItemPoolInterface;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Contracts\Cache\ItemInterface;
 
-class PaginateGithubRepositoriesAction
+readonly class PaginateGithubRepositoriesAction
 {
     public function __construct(
-        private readonly GithubRepoRepository $repository,
-        private readonly CacheItemPoolInterface  $cache
+        private GithubRepoRepository $repository,
     ) {}
+    // Fixed pages allowed to filter with
     private const ALLOWED_PER_PAGE = [10, 30, 60, 100];
+
+    // default per page as fallback
     private const DEFAULT_PER_PAGE = 10;
 
+    /**
+     * this action taction the controller execute request
+     * then parse query required params to filter and paginate
+     * then eventually return back array with list of repos with some metadata
+     * @param Request $request
+     * @return array
+     */
     public function execute(Request $request): array
     {
+        // search by name lookup
         $search = $request->query->get('search', null);
+        // min stars filter, e.g min 20000, filter only repos above that number
         $minStars = max(0, (int) $request->query->get('min_stars', 0));
-
-        // Validate and enforce per_page values
+        // validate and enforce per_page values
         $requestedPerPage = (int) $request->query->get('per_page', self::DEFAULT_PER_PAGE);
         $per_page = in_array($requestedPerPage, self::ALLOWED_PER_PAGE)
             ? $requestedPerPage
             : self::DEFAULT_PER_PAGE;
-
+        // ensure that the page not under 1
         $page = max(1, (int) $request->query->get('page', 1));
 
-        $cacheFilters = [
+        $inputFilter = [
             'search' => $search,
             'min_stars' => $minStars,
         ];
-        $cache_key = 'repos_filter_' . hash('sha256', json_encode($cacheFilters));
 
-
-        $cachedResult = $this->cache->get($cache_key, function (ItemInterface $item) use ($cacheFilters) {
-            $item->expiresAfter(3600);
-            return $this->buildFilteredResults($cacheFilters);
-        });
-
-        // Paginate from cached results
-        $offset = ($page - 1) * $per_page;
-        $paginatedIds = array_slice($cachedResult['ids'], $offset, $per_page);
+        // building data based on requested filters
+        $results = $this->buildFilteredResults(
+            page: $page,
+            per_page: $per_page,
+            filter: $inputFilter
+        );
 
         // Fetch only the repos for current page
-        $repos = !empty($paginatedIds)
-            ? $this->repository->findReposByIds($paginatedIds)
-            : [];
-
-        $mappedRepositories = array_map(fn($repo) => RepositoryItemDTO::fromObject($repo), $repos);
-
+        $repos = $results['repos'] ?? [];
         return [
-            'repositories' => $mappedRepositories,
-            'page' => $page,
-            'pageCount' => count($paginatedIds),
-            'totalAll' => $cachedResult['totalCount'],
+            'repositories' => $repos, // repositories
+            'page' => $page, // page filter from the request
+            'pageCount' => $per_page, // per page from the request
+            'totalAll' => $results['totalCount'] ?? 0, // all repos total info
         ];
     }
 
-    private function buildFilteredResults(array $filter = []): array
+    /**
+     * building the criteria to match the filters and pagination ranges
+     * @param int $page
+     * @param int $per_page
+     * @param array $filter
+     * @return array
+     */
+    private function buildFilteredResults(int $page, int $per_page, array $filter = []): array
     {
+        // Paginate from cached results
+        $offset = ($page - 1) * $per_page;
         $search = $filter['search'] ?? null;
         $min_stars = $filter['min_stars'] ?? 0;
         $criteria = new Criteria();
@@ -73,13 +82,17 @@ class PaginateGithubRepositoriesAction
         if ($min_stars > 0) {
             $criteria->andWhere(Criteria::expr()->gte('stars_count', $min_stars));
         }
-
+        // always sorting with stars count to meet the coding challenge scope
         $criteria->orderBy(['stars_count' => 'DESC']);
+        // adding pagination info
+        $criteria->setFirstResult($offset)
+        ->setMaxResults($per_page);
         $repos = $this->repository->matching($criteria);
 
         return [
-            'ids' => $repos->map(fn($repo) => $repo->getId())->toArray(),
-            'totalCount' => $repos->count(),
+            // Mapping Repo entity to the dto to control shown data
+            'repos' => $repos->map(fn($repo) => RepositoryItemDTO::fromObject($repo))->toArray(),
+            'totalCount' => $this->repository->count(),
         ];
     }
 }

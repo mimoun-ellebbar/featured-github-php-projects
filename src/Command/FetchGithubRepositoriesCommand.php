@@ -35,13 +35,16 @@ class FetchGithubRepositoriesCommand extends Command
     {
         $io = new SymfonyStyle($input, $output);
         $io->writeln('Fetching Github Repositories...');
-        $this->action->execute(
+        $resp = $this->action->execute(
             per_page: $input->getOption('per_page'),
             max_result: $input->getOption('max_result'),
         );
-
-        $io->success('Fetch has started as a background jobs.');
-
+        if (!$resp->ok) {
+            $io->error('Fetch process has failed.');
+            $io->error($resp->message);
+            return Command::FAILURE;
+        }
+        $io->success('Fetch process has successfully finished.');
         return Command::SUCCESS;
     }
 }

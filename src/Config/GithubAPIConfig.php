@@ -13,10 +13,13 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
  * Injected via dependency injection and easily extensible as the
  * integration grows.
  */
-final class GithubConfig
+final class GithubAPIConfig
 {
     public function __construct(
         public readonly string $token,
         public string $searchEndpoint,
+        public int $apiMaxResultCount,
+        public int $apiMaxPerPageCount
     ) {}
+
 }

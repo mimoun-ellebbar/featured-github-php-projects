@@ -7,6 +7,10 @@ use DateTimeImmutable;
 use DateTimeInterface;
 use DateTimeZone;
 
+/**
+ * it’s a presentation-focused DTO that keeps display logic out of the GitHub Repository entity,
+ * preserving clean separation of concerns.
+ */
 class RepositoryItemDTO
 {
     public function __construct(

@@ -2,6 +2,10 @@
 
 namespace App\DataTransferObjects;
 
+/**
+ * DTO Response for refresh action process
+ * contain confirmation and details about failure if any
+ */
 class GithubReposRefreshResponseDTO
 {
     public function __construct(
