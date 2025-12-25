@@ -137,6 +137,9 @@ RUN composer install --prefer-dist --no-scripts --no-progress --no-interaction |
 # Copy application files for asset building
 COPY . .
 
+# Asset map init
+RUN php php bin/console importmap:install || true
+
 # Build Tailwind CSS and compile assets
 RUN php bin/console tailwind:build --minify || true \
     && php bin/console asset-map:compile || true
@@ -146,6 +149,11 @@ RUN mkdir -p var/cache var/log \
     && chown -R www-data:www-data var \
     && chmod -R 777 var
 
+
+# init database
+RUN php bin/console doctrine:database:create --if-not-exists --no-interaction \
+    && php bin/console doctrine:migrations:migrate --no-interaction || true
+    
 # Expose PHP-FPM port
 EXPOSE 9000
 
