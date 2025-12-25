@@ -14,13 +14,18 @@ cd featured_github_php_projects
 
 **2. (Optional) Set up GitHub token for higher rate limits (30/min vs 10/min):**
 ```bash
-cp .env .env.local
-# Edit .env.local and add: GITHUB_API_TOKEN=your_token_here
+# Copy Docker-specific environment template (contains database config, ports, etc.)
+cp .env.dev.local.dist .env.dev.local
+# Edit .env.dev.local and add: GITHUB_API_TOKEN=your_token_here
 ```
 
 **3. Build and start Docker containers:**
 ```bash
-docker compose up --build
+docker compose build --no-cache
+```
+Then
+```bash
+docker compose up -d
 ```
 Wait 2-3 minutes for the build. You'll see "ready to handle connections" when it's done.
 
