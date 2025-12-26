@@ -3,6 +3,12 @@ set -e
 
 echo "=== Symfony Entrypoint Script ==="
 
+# Generate APP_SECRET if not set or empty
+if [ -z "$APP_SECRET" ] || [ "$APP_SECRET" = "change_me_to_random_secret" ]; then
+    export APP_SECRET=$(php -r "echo bin2hex(random_bytes(16));")
+    echo "Generated APP_SECRET: $APP_SECRET"
+fi
+
 # Build assets (must run before DB checks as it doesn't need DB)
 echo "Installing importmap packages..."
 php bin/console importmap:install || true

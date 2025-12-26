@@ -2,6 +2,11 @@
 
 A Symfony 7.4 application demonstrating GitHub API integration, DTO-driven design, and database persistence for PHP repositories.
 
+
+## Video Setup Guide
+
+**Watch the setup process:** [Setup Video on Streamable](https://streamable.com/0k7rzp)
+
 ## Installation
 
 **Prerequisites:** Docker & Docker Compose
@@ -13,9 +18,14 @@ cd featured_github_php_projects
 ```
 
 **2. (Optional) Set up GitHub token for higher rate limits (30/min vs 10/min):**
-```bash
+```
 # Copy Docker-specific environment template (contains database config, ports, etc.)
+```
+```bash
 cp .env.dev.local.dist .env.dev.local
+```
+Then you could
+```
 # Edit .env.dev.local and add: GITHUB_API_TOKEN=your_token_here
 ```
 
