@@ -37,7 +37,7 @@ services:
       database:
         condition: service_healthy
     healthcheck:
-      test: ["CMD-SHELL", "pidof php-fpm"]
+      test: ["CMD-SHELL", "pgrep php-fpm || exit 1"]
       interval: 5s
       timeout: 3s
       retries: 3
