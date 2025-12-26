@@ -17,15 +17,14 @@ git clone <repository-url>
 cd featured_github_php_projects
 ```
 
-**2. (Optional) Set up GitHub token for higher rate limits (30/min vs 10/min):**
-```
-# Copy Docker-specific environment template (contains database config, ports, etc.)
-```
+**2. Copy dev env file for docker to run:**
+
 ```bash
 cp .env.dev.local.dist .env.dev.local
 ```
-Then you could
 ```
+# (Optional) Set up GitHub token for higher rate limits (30/min vs 10/min)
+# Copy Docker-specific environment template (contains database config, ports, etc.)
 # Edit .env.dev.local and add: GITHUB_API_TOKEN=your_token_here
 ```
 
