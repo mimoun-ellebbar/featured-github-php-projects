@@ -49,6 +49,21 @@ Click "Code Challenge" in the navigation or go to `http://localhost:8080/github-
 
 That's it! The application is now running.
 
+## Loading Data
+
+Populate the database with GitHub's most starred PHP projects using either method:
+
+**Option 1: Console Command (Docker)**
+```bash
+docker compose exec php bin/console app:github:fetch-repositories
+```
+Optional parameters: `--per_page=100` (default) `--max_result=500` (default, max 1000)
+
+**Option 2: Web Interface**
+Navigate to `http://localhost:8080/github/repository` and click the **"Refresh Database"** button.
+
+Both methods use the same underlying service but the console command allows parameter customization.
+
 ## Architecture
 
 ### Stack
